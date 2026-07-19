@@ -68,3 +68,9 @@ USE_HTTPS_IN_ABSOLUTE_URLS = True
 # Replace with your own address before deploying — this is where signup notifications and
 # error reports (django.core.mail.mail_admins) are sent. See docs/DEPLOYMENT.md.
 ADMINS = ["admin@example.com"]
+
+ALLOWED_HOSTS = [
+    "learning-platform-qw4v.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
