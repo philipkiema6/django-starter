@@ -1,0 +1,91 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% block app %}
+<div class="flex items-start justify-between mb-4 gap-4">
+  <div>
+    <h1 class="text-2xl font-bold">{{ course.title }}</h1>
+    {% if course.is_published %}
+      <span class="badge badge-success badge-soft mt-1">{% translate "Published" %}</span>
+    {% else %}
+      <span class="badge badge-ghost mt-1">{% translate "Draft" %}</span>
+    {% endif %}
+  </div>
+  <div class="flex gap-2 shrink-0">
+    <a href="{% url 'courses:instructor_course_edit' course.slug %}" class="btn btn-ghost btn-sm">
+      <i class="fa fa-pencil"></i> {% translate "Edit" %}
+    </a>
+    <form method="post" action="{% url 'courses:instructor_course_delete' course.slug %}"
+          onsubmit="return confirm('{% translate "Delete this course? This cannot be undone." %}');">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-ghost btn-sm text-error">
+        <i class="fa fa-trash"></i> {% translate "Delete" %}
+      </button>
+    </form>
+  </div>
+</div>
+
+{% if course.description %}
+<section class="app-card">
+  <div class="prose max-w-none">{{ course.description|linebreaks }}</div>
+</section>
+{% endif %}
+
+<section class="app-card">
+  <div class="flex items-center justify-between mb-2">
+    <h2 class="text-xl font-bold">{% translate "Lessons" %}</h2>
+    <a href="{% url 'courses:instructor_lesson_create' course.slug %}" class="btn btn-sm btn-primary">
+      <i class="fa fa-plus"></i> {% translate "Add Lesson" %}
+    </a>
+  </div>
+  {% if lessons %}
+  <ul class="list">
+    {% for lesson in lessons %}
+    <li class="list-row items-center">
+      <div class="grow">{{ forloop.counter }}. {{ lesson.title }}</div>
+      <a href="{% url 'courses:instructor_lesson_edit' course.slug lesson.id %}" class="btn btn-ghost btn-xs">
+        <i class="fa fa-pencil"></i>
+      </a>
+      <form method="post" action="{% url 'courses:instructor_lesson_delete' course.slug lesson.id %}"
+            onsubmit="return confirm('{% translate "Delete this lesson?" %}');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-ghost btn-xs text-error">
+          <i class="fa fa-trash"></i>
+        </button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-base-content/70">{% translate "No lessons yet. Add your first lesson above." %}</p>
+  {% endif %}
+</section>
+
+<section class="app-card">
+  <h2 class="text-xl font-bold mb-2">{% translate "Enrolled Students" %}</h2>
+  {% if enrollments %}
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{% translate "Student" %}</th>
+          <th>{% translate "Progress" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for enrollment in enrollments %}
+        <tr>
+          <td>{{ enrollment.student.get_display_name }}</td>
+          <td>
+            <progress class="progress progress-primary w-32" value="{{ enrollment.progress_percent }}" max="100"></progress>
+            {{ enrollment.progress_percent }}%
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-base-content/70">{% translate "No students enrolled yet." %}</p>
+  {% endif %}
+</section>
+{% endblock %}

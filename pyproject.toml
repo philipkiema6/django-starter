@@ -75,8 +75,10 @@ dependencies = [
     "django-waffle",
     "djangorestframework",
     "drf-spectacular",
+    "pillow>=12.3.0",
     "psycopg",
     "redis",
+    "reportlab>=5.0.0",
 ]
 
 [dependency-groups]

@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from .helpers import validate_profile_picture
-from .models import CustomUser
+from .models import CustomUser, Profile
 
 
 class TurnstileSignupForm(SignupForm):
@@ -54,6 +54,12 @@ class CustomUserChangeForm(UserChangeForm):
 
 class UploadAvatarForm(forms.Form):
     avatar = forms.FileField(validators=[validate_profile_picture])
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ("bio", "phone_number", "location")
 
 
 class TermsSignupForm(TurnstileSignupForm):

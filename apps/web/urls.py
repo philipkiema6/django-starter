@@ -9,6 +9,9 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("terms/", TemplateView.as_view(template_name="web/terms.html"), name="terms"),
     path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain"), name="robots.txt"),
+    path("manifest.json", views.manifest, name="manifest"),
+    path("sw.js", views.service_worker, name="service_worker"),
+    path("offline/", TemplateView.as_view(template_name="web/offline.html"), name="offline"),
     # these views are just for testing error pages
     # actual error handling is handled by Django: https://docs.djangoproject.com/en/stable/ref/views/#error-views
     path("400/", default_views.bad_request, kwargs={"exception": Exception("Bad Request!")}, name="400"),

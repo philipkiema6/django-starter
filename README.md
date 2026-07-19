@@ -1,6 +1,151 @@
-# Django Project Starter Template
+# Learning Platform
 
-> Django (Server Only) starter template, inherited from [SaaS Pegasus](https://www.saaspegasus.com/).
+> A course/lesson/enrollment learning platform built on top of the
+> [django-starter](https://github.com/ChrisDevCode-Technologies/django-starter) template
+> (itself inherited from [SaaS Pegasus](https://www.saaspegasus.com/)).
+
+- **Live demo:** [LIVE_DEMO_URL]
+- **Repository:** [GITHUB_URL]
+
+## Project Overview
+
+A small but complete Learning Management System: instructors create courses made of ordered
+lessons; students browse a public catalog, enroll, work through lessons, and track their
+progress. It's a portfolio project demonstrating a full authentication flow, role-based
+permissions, HTMX-driven interactions on top of server-rendered Django templates, a
+Tailwind/DaisyUI UI with dark mode, and basic PWA support — all built by extending the
+existing starter template rather than replacing its architecture.
+
+### Features
+
+- Full authentication flow (registration, login, logout, password reset, password change) via
+  `django-allauth`.
+- User profiles with avatar upload, bio, phone number, and location.
+- Three-tier access — **Admin**, **Instructor**, **Student** — with role-specific dashboards,
+  navigation, and server-side permission checks.
+- Instructors: create/edit/delete courses and lessons, publish courses, see enrolled students
+  and their progress.
+- Students: browse a paginated course catalog, enroll (HTMX, no page reload), work through
+  lessons, mark lessons complete with a live-updating progress bar, and download a generated
+  PDF certificate once a course is 100% complete.
+- Admins: a dedicated dashboard (`/staff/`) with site-wide stats, a user directory they can
+  filter by role, an "Add User" form to provision Instructor/Student accounts directly, the
+  ability to activate/deactivate any account, and a searchable activity log of notable events
+  across the site (signups, courses created/published, enrollments, completions, certificate
+  downloads, admin actions).
+- Dark mode (DaisyUI theme toggle, persisted per-browser).
+- Installable PWA with offline fallback page and runtime asset caching.
+
+### Authentication Flow
+
+Registration, login, logout, password reset, and password change are all provided by
+`django-allauth` at `/accounts/...` (see `apps/users/`) — this repo only adds the extra profile
+fields and role on top. New accounts default to the **Student** role. A deactivated account
+(see [User Roles](#user-roles)) is force-logged-out on its next request and can't sign back in
+— see `apps/users/middleware.py::DeactivatedAccountMiddleware`.
+
+### User Roles
+
+| Role | How it's granted | What they can do |
+|------|-------------------|-------------------|
+| **Student** | Default for every new signup, or created directly by an Admin | Browse courses, enroll, complete lessons, track progress, download certificates |
+| **Instructor** | An Admin promotes a user's `Profile.role` (via `/admin/`'s Profile inline, or by creating the account directly at `/staff/users/new/`) | Create/edit/delete their own courses and lessons, view enrolled students |
+| **Admin** | Django `is_staff` / `is_superuser` | Everything: a dedicated dashboard, add/deactivate any account, view the full activity log, plus full Django admin access |
+
+Permissions are enforced server-side (`apps/courses/permissions.py`, `apps/adminpanel/permissions.py`)
+and reflected in the UI (role-gated navigation, 403/404 on unauthorized access).
+
+### Admin Dashboard & Activity Log
+
+Staff accounts land on `/staff/` instead of the regular dashboard — a distinct area, not a
+themed variant of the student/instructor view. It's a thin custom UI (`apps/adminpanel/`) on
+top of Django's own permission system (`is_staff`/`is_superuser`), not a reimplementation of
+it — anything not covered by the custom pages (deep edits, groups/permissions) is still just a
+click away at `/admin/`. Every notable event — registration, course created/published,
+enrollment, lesson/course completion, certificate downloads, and admin actions (account
+creation/activation/deactivation) — is written to `apps/activity/models.py::ActivityLog` from
+the exact view where it happens (not inferred generically), and is browsable at `/staff/logs/`.
+
+### Certificates
+
+Once a student completes every lesson in a course, a "Download Certificate" button appears (on
+the course's learning page and on `/courses/my-learning/`) that generates a PDF on demand —
+see `apps/courses/certificates.py`. It uses `reportlab` (pure Python, no system libraries)
+rather than an HTML-to-PDF renderer like WeasyPrint, which needs Pango/Cairo/GDK-Pixbuf
+installed on the host. The certificate's seal is a hand-drawn vector shape, not a fabricated
+logo image.
+
+### PWA Features
+
+- `manifest.json` (`/manifest.json`) — makes the app installable.
+- A service worker (`/sw.js`) — runtime-caches static assets and serves an offline fallback
+  page (`/offline/`) when navigation fails due to no network.
+
+### Technology Stack
+
+Django 6 · django-allauth · Django REST Framework · HTMX · Alpine.js · Tailwind CSS v4 ·
+DaisyUI v5 · Vite + django-vite · SQLite (local) / PostgreSQL (production) · Celery (eager
+locally) · Docker / Docker Compose (production) · WhiteNoise · ReportLab (PDF certificates).
+
+### Folder Structure
+
+```
+apps/
+  users/       CustomUser, Profile (role/bio/phone/location), allauth adapter/forms/signals,
+               profile view + avatar upload, deactivation-enforcement middleware
+  activity/    ActivityLog model + log_activity() helper used across apps
+  courses/     Course, Lesson, Enrollment, LessonProgress models; instructor & student views;
+               permissions; dashboard selectors; certificate PDF generation
+  adminpanel/  Staff-only dashboard, user directory/creation/deactivation, activity log viewer
+  web/         Marketing shell, authenticated dashboard, base templates, nav, PWA views
+               (manifest.json, sw.js, offline page)
+  utils/       Shared abstract BaseModel (created_at/updated_at)
+config/
+  settings/    base.py (shared), dev.py (local, default), prod.py (production overrides)
+  urls.py      Root URLConf
+templates/
+  web/         Base layout, landing page, dashboard, nav components, PWA templates
+  account/     django-allauth template overrides (login, signup, password reset/change, profile)
+  courses/     Catalog, course detail, learn view, and instructor management templates
+  adminpanel/  Admin dashboard, user directory/creation, activity log templates
+assets/        Front-end source (JS in assets/javascript/, CSS in assets/styles/), built by Vite
+static/        Built front-end output + committed assets (favicons, sw.js, offline JS)
+docs/
+  DEPLOYMENT.md    Step-by-step Render deployment guide
+  devto-article.md Draft article for dev.to
+```
+
+### Screenshots
+
+| Catalog | Course detail | Learning view |
+|---------|----------------|----------------|
+| [SCREENSHOT] | [SCREENSHOT] | [SCREENSHOT] |
+
+| Instructor dashboard | Student dashboard | Dark mode |
+|------------------------|---------------------|-----------|
+| [SCREENSHOT] | [SCREENSHOT] | [SCREENSHOT] |
+
+| Admin dashboard | Activity log | Certificate |
+|------------------|----------------|--------------|
+| [SCREENSHOT] | [SCREENSHOT] | [SCREENSHOT] |
+
+### Future Improvements
+
+- S3-compatible object storage (`django-storages`) for uploaded media, so avatars/course
+  covers survive redeploys on hosts without a persistent disk (see
+  [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
+- Email an admin-created account's initial password/login link instead of the admin having to
+  relay it manually — needs a real `EMAIL_BACKEND` configured (see `.env.prod.example`).
+- Quizzes/assessments per lesson.
+- A custom "Add to Home Screen" install-prompt button (currently relies on the browser's
+  native install UI).
+- Rich-text/Markdown lesson content instead of plain text.
+
+### License
+
+MIT — see [LICENSE](LICENSE).
+
+---
 
 This project runs in **two distinct modes**:
 
@@ -16,6 +161,9 @@ The split is driven by `DEBUG` and a few environment variables — see [Configur
 
 ## Table of contents
 
+- [Project Overview](#project-overview)
+- [Admin Dashboard & Activity Log](#admin-dashboard--activity-log)
+- [Certificates](#certificates)
 - [Local development](#local-development)
   - [Prerequisites](#prerequisites)
   - [1. Bootstrap](#1-bootstrap-make-init)
@@ -347,6 +495,13 @@ make prod-manage ARGS='check --deploy'
 
 Consider also enabling HSTS (see the commented block in `config/settings/prod.py`) once you're
 confident HTTPS works, and scaling `GUNICORN_WORKERS` in `.env.prod` to `(2 × CPU cores) + 1`.
+
+### Deploying to Render
+
+This repo includes a `render.yaml` Blueprint for deploying the existing `Dockerfile` + a free
+Postgres database to [Render](https://render.com) at no cost. See
+**[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for the full step-by-step guide, required env vars,
+and known limitations of the free tier (no persistent disk for uploaded media).
 
 ---
 

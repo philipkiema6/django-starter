@@ -1,0 +1,55 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% block app %}
+<div class="flex flex-col lg:flex-row gap-6">
+  <aside class="lg:basis-72 shrink-0">
+    <div class="app-card lg:sticky lg:top-24">
+      <h2 class="font-bold mb-1">{{ course.title }}</h2>
+      {% include "courses/components/lesson_progress_bar.html" %}
+      {% if enrollment.is_complete %}
+        <a href="{% url 'courses:certificate' course.slug %}" class="btn btn-success btn-sm btn-block mt-2">
+          <i class="fa fa-certificate"></i> {% translate "Download Certificate" %}
+        </a>
+      {% endif %}
+      <ul class="menu p-0 mt-3">
+        {% for item in lessons %}
+        <li>
+          <a href="{% url 'courses:lesson' course.slug item.id %}"
+             class="{% if item.id == current_lesson.id %}menu-active{% endif %}">
+            {% if item.id in completed_lesson_ids %}
+              <i class="fa fa-check-circle text-success"></i>
+            {% else %}
+              <i class="fa fa-circle-o"></i>
+            {% endif %}
+            {{ forloop.counter }}. {{ item.title }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+  <div class="flex-1">
+    <section class="app-card">
+      <h1 class="text-2xl font-bold mb-4">{{ current_lesson.title }}</h1>
+      <div class="prose max-w-none mb-6">{{ current_lesson.content|linebreaks }}</div>
+      <div class="flex items-center gap-2" id="lesson-actions">
+        {% if lesson_is_complete %}
+          <span class="badge badge-success badge-soft"><i class="fa fa-check"></i> {% translate "Completed" %}</span>
+          {% if next_lesson %}
+            <a href="{% url 'courses:lesson' course.slug next_lesson.id %}" class="btn btn-ghost">
+              {% translate "Next Lesson" %} <i class="fa fa-arrow-right"></i>
+            </a>
+          {% endif %}
+        {% else %}
+          <button class="btn btn-primary"
+                  hx-post="{% url 'courses:mark_complete' course.slug current_lesson.id %}"
+                  hx-target="#lesson-actions"
+                  hx-swap="outerHTML">
+            {% translate "Mark as Complete" %}
+          </button>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% load i18n %}
+<div id="lesson-progress" {% if oob %}hx-swap-oob="true"{% endif %}>
+  <progress class="progress progress-primary w-full" value="{{ enrollment.progress_percent }}" max="100"></progress>
+  <p class="text-sm text-base-content/70 mt-1">
+    {{ enrollment.progress_percent }}% {% translate "complete" %}
+  </p>
+</div>

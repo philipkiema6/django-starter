@@ -24,6 +24,16 @@
       {% endif %}
       {% render_text_input form.first_name %}
       {% render_text_input form.last_name %}
+      <div class="mt-4">
+        <label class="label"><span class="label-text">{% translate "Role" %}</span></label>
+        <div class="badge badge-outline">{{ user.profile.get_role_display }}</div>
+        <p class="text-sm text-base-content/70 mt-1">
+          {% translate "Contact an administrator to change your role." %}
+        </p>
+      </div>
+      {% render_text_input profile_form.bio %}
+      {% render_text_input profile_form.phone_number %}
+      {% render_text_input profile_form.location %}
       <div class="mt-2">
         <input class="btn btn-primary" type="submit" value="{% translate "Save" %}">
       </div>

@@ -1,0 +1,27 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% load form_tags %}
+{% block app %}
+<h1 class="text-2xl font-bold mb-4">{{ page_title }}</h1>
+<section class="app-card max-w-2xl">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% render_text_input form.title %}
+    {% render_text_input form.description %}
+    {% render_field form.cover_image %}
+    {% render_field form.is_published %}
+    <div class="mt-4 flex gap-2">
+      <input class="btn btn-primary" type="submit" value="{% translate "Save" %}">
+      {% if course %}
+        <a href="{% url 'courses:instructor_course_detail' course.slug %}" class="btn btn-ghost">
+          {% translate "Cancel" %}
+        </a>
+      {% else %}
+        <a href="{% url 'courses:instructor_course_list' %}" class="btn btn-ghost">
+          {% translate "Cancel" %}
+        </a>
+      {% endif %}
+    </div>
+  </form>
+</section>
+{% endblock %}

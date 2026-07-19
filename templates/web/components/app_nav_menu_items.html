@@ -3,11 +3,69 @@
   <span>{% translate "Application" %}</span>
 </li>
 <li>
+  {% if user.is_staff %}
+  <a href="{% url 'adminpanel:dashboard' %}" {% if active_tab == 'admin_dashboard' %}class="menu-active"{% endif %}>
+    <i class="fa fa-tachometer h-4 w-4"></i>
+    {% translate "Dashboard" %}
+  </a>
+  {% else %}
   <a href="{% url 'web:home' %}" {% if active_tab == 'dashboard' %}class="menu-active"{% endif %}>
     <i class="fa fa-home h-4 w-4"></i>
     {% translate "Dashboard" %}
   </a>
+  {% endif %}
 </li>
+{% if user.is_staff %}
+<li class="menu-title">
+  <span>{% translate "Admin" %}</span>
+</li>
+<ul class="menu-list">
+  <li>
+    <a href="{% url 'adminpanel:user_list' %}" {% if active_tab == 'admin_users' %}class="menu-active"{% endif %}>
+      <i class="fa fa-users h-4 w-4"></i>
+      {% translate "Users" %}
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'adminpanel:logs' %}" {% if active_tab == 'admin_logs' %}class="menu-active"{% endif %}>
+      <i class="fa fa-list-alt h-4 w-4"></i>
+      {% translate "Activity Log" %}
+    </a>
+  </li>
+</ul>
+{% endif %}
+{% if user.is_authenticated and user.profile.is_instructor %}
+<li class="menu-title">
+  <span>{% translate "Teaching" %}</span>
+</li>
+<ul class="menu-list">
+  <li>
+    <a href="{% url 'courses:instructor_course_list' %}" {% if active_tab == 'my_courses' %}class="menu-active"{% endif %}>
+      <i class="fa fa-chalkboard-teacher h-4 w-4"></i>
+      {% translate "My Courses" %}
+    </a>
+  </li>
+</ul>
+{% endif %}
+<li class="menu-title">
+  <span>{% translate "Learning" %}</span>
+</li>
+<ul class="menu-list">
+  <li>
+    <a href="{% url 'courses:catalog' %}" {% if active_tab == 'catalog' %}class="menu-active"{% endif %}>
+      <i class="fa fa-book h-4 w-4"></i>
+      {% translate "Browse Courses" %}
+    </a>
+  </li>
+  {% if user.is_authenticated and user.profile.is_student %}
+  <li>
+    <a href="{% url 'courses:my_learning' %}" {% if active_tab == 'my_learning' %}class="menu-active"{% endif %}>
+      <i class="fa fa-graduation-cap h-4 w-4"></i>
+      {% translate "My Enrollments" %}
+    </a>
+  </li>
+  {% endif %}
+</ul>
 {% if not user.is_anonymous %}
 <li class="menu-title">
   <span>{% translate "My Account" %}</span>
@@ -33,12 +91,5 @@
       {% translate "Sign out" %}
     </a>
   </li>
-</ul>
-{% endif %}
-{% if user.is_superuser %}
-<li class="menu-title">
-  <span>{% translate "Admin" %}</span>
-</li>
-<ul class="menu-list">
 </ul>
 {% endif %}

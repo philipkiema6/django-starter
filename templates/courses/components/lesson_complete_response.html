@@ -1,0 +1,14 @@
+{% load i18n %}
+<div id="lesson-actions" class="flex items-center gap-2">
+  <span class="badge badge-success badge-soft"><i class="fa fa-check"></i> {% translate "Completed" %}</span>
+  {% if next_lesson %}
+    <a href="{% url 'courses:lesson' course.slug next_lesson.id %}" class="btn btn-ghost">
+      {% translate "Next Lesson" %} <i class="fa fa-arrow-right"></i>
+    </a>
+  {% elif enrollment.is_complete %}
+    <a href="{% url 'courses:certificate' course.slug %}" class="btn btn-success">
+      <i class="fa fa-certificate"></i> {% translate "Download Certificate" %}
+    </a>
+  {% endif %}
+</div>
+{% include "courses/components/lesson_progress_bar.html" with oob=True %}

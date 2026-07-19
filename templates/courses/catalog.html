@@ -1,0 +1,8 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% block app %}
+<h1 class="text-2xl font-bold mb-4">{% translate "Browse Courses" %}</h1>
+<div id="list-content">
+  {% include "courses/components/course_grid.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% block app %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">{% translate "Users" %}</h1>
+  <a href="{% url 'adminpanel:user_create' %}" class="btn btn-primary">
+    <i class="fa fa-user-plus"></i> {% translate "Add User" %}
+  </a>
+</div>
+
+<div role="tablist" class="tabs tabs-box mb-4 w-fit">
+  <a role="tab" class="tab {% if not role_filter %}tab-active{% endif %}" href="{% url 'adminpanel:user_list' %}">
+    {% translate "All" %}
+  </a>
+  <a role="tab" class="tab {% if role_filter == 'instructor' %}tab-active{% endif %}" href="?role=instructor">
+    {% translate "Instructors" %}
+  </a>
+  <a role="tab" class="tab {% if role_filter == 'student' %}tab-active{% endif %}" href="?role=student">
+    {% translate "Students" %}
+  </a>
+</div>
+
+{% if page_obj.object_list %}
+<section class="app-card overflow-x-auto">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>{% translate "Name" %}</th>
+        <th>{% translate "Email" %}</th>
+        <th>{% translate "Role" %}</th>
+        <th>{% translate "Status" %}</th>
+        <th>{% translate "Joined" %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user_row in page_obj.object_list %}
+      <tr>
+        <td>{{ user_row.get_display_name }}</td>
+        <td>{{ user_row.email }}</td>
+        <td>
+          {% if user_row.is_superuser %}
+            <span class="badge badge-primary badge-soft">{% translate "Admin" %}</span>
+          {% else %}
+            <span class="badge badge-ghost">{{ user_row.profile.get_role_display }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if user_row.is_active %}
+            <span class="badge badge-success badge-soft">{% translate "Active" %}</span>
+          {% else %}
+            <span class="badge badge-error badge-soft">{% translate "Deactivated" %}</span>
+          {% endif %}
+        </td>
+        <td>{{ user_row.date_joined|date:"M j, Y" }}</td>
+        <td class="text-right">
+          {% if user_row.pk != request.user.pk %}
+          <form method="post" action="{% url 'adminpanel:user_toggle_active' user_row.pk %}">
+            {% csrf_token %}
+            {% if user_row.is_active %}
+              <button type="submit" class="btn btn-ghost btn-xs text-error"
+                      onclick="return confirm('{% translate "Deactivate this account?" %}');">
+                {% translate "Deactivate" %}
+              </button>
+            {% else %}
+              <button type="submit" class="btn btn-ghost btn-xs text-success">
+                {% translate "Activate" %}
+              </button>
+            {% endif %}
+          </form>
+          {% else %}
+            <span class="text-xs text-base-content/40">{% translate "(you)" %}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% if page_obj.has_other_pages %}
+<div class="flex justify-center mt-4 gap-2">
+  {% if page_obj.has_previous %}
+    <a class="btn btn-sm" href="?page={{ page_obj.previous_page_number }}{% if role_filter %}&role={{ role_filter }}{% endif %}">{% translate "Previous" %}</a>
+  {% endif %}
+  <span class="btn btn-sm btn-disabled">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+    <a class="btn btn-sm" href="?page={{ page_obj.next_page_number }}{% if role_filter %}&role={{ role_filter }}{% endif %}">{% translate "Next" %}</a>
+  {% endif %}
+</div>
+{% endif %}
+{% else %}
+<section class="app-card text-center">
+  <h2 class="text-xl font-bold">{% translate "No users found" %}</h2>
+</section>
+{% endif %}
+{% endblock %}

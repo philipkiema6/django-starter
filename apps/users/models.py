@@ -7,6 +7,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from apps.users.helpers import validate_profile_picture
+from apps.utils.models import BaseModel
 
 
 def _get_avatar_filename(instance, filename):
@@ -44,3 +45,34 @@ class CustomUser(AbstractUser):
     @cached_property
     def has_verified_email(self):
         return EmailAddress.objects.filter(user=self, verified=True).exists()
+
+
+class Profile(BaseModel):
+    """
+    Every CustomUser gets a Profile (see apps.users.signals.create_profile), which carries
+    role and other user-facing details that don't belong on the auth model itself.
+    """
+
+    ROLE_STUDENT = "student"
+    ROLE_INSTRUCTOR = "instructor"
+    ROLE_CHOICES = [
+        (ROLE_STUDENT, "Student"),
+        (ROLE_INSTRUCTOR, "Instructor"),
+    ]
+
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_STUDENT)
+    bio = models.TextField(blank=True)
+    phone_number = models.CharField(max_length=30, blank=True)
+    location = models.CharField(max_length=120, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.user} ({self.role})"
+
+    @property
+    def is_instructor(self) -> bool:
+        return self.role == self.ROLE_INSTRUCTOR
+
+    @property
+    def is_student(self) -> bool:
+        return self.role == self.ROLE_STUDENT

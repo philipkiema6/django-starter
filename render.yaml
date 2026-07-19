@@ -1,0 +1,58 @@
+# Render Blueprint for deploying this app on Render's free tier.
+#
+# This is a best-effort starting point — Render's Blueprint schema and free-tier plan names
+# change over time, so validate it via the Render dashboard ("New +" -> "Blueprint") before
+# relying on it, and see docs/DEPLOYMENT.md for the equivalent manual (dashboard) steps if
+# anything here doesn't validate against your account.
+#
+# Notes:
+# - config/settings/prod.py uses Redis for Django's cache backend unconditionally whenever
+#   DEBUG=False (not just for Celery), so a Redis/Key-Value instance is required here even
+#   though we don't run a dedicated Celery worker.
+# - CELERY_TASK_ALWAYS_EAGER=True means no separate worker process is needed: any background
+#   tasks run synchronously in the web process. Fine for this app's feature set, which has
+#   no scheduled/background jobs of its own yet.
+# - Free-tier web services on Render have no persistent disk, so uploaded media (avatars,
+#   course cover images) will not survive restarts/redeploys. See docs/DEPLOYMENT.md.
+
+databases:
+  - name: learning-platform-db
+    plan: free
+    databaseName: learning_platform
+    user: learning_platform
+
+services:
+  - type: redis
+    name: learning-platform-cache
+    plan: free
+    ipAllowList: []
+
+  - type: web
+    name: learning-platform
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.prod
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        # Replace with your actual Render URL (and any custom domain) after the first deploy,
+        # e.g. "learning-platform.onrender.com".
+        value: ""
+      - key: USE_HTTPS_IN_ABSOLUTE_URLS
+        value: "True"
+      - key: CELERY_TASK_ALWAYS_EAGER
+        value: "True"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: learning-platform-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: learning-platform-cache
+          property: connectionString

@@ -1,0 +1,60 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% load static %}
+{% block app %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">{% translate "My Courses" %}</h1>
+  <a href="{% url 'courses:instructor_course_create' %}" class="btn btn-primary">
+    <i class="fa fa-plus"></i> {% translate "New Course" %}
+  </a>
+</div>
+{% if courses %}
+<section class="app-card overflow-x-auto">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>{% translate "Title" %}</th>
+        <th>{% translate "Status" %}</th>
+        <th>{% translate "Lessons" %}</th>
+        <th>{% translate "Students" %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+      <tr>
+        <td>
+          <a class="link link-hover font-medium" href="{% url 'courses:instructor_course_detail' course.slug %}">
+            {{ course.title }}
+          </a>
+        </td>
+        <td>
+          {% if course.is_published %}
+            <span class="badge badge-success badge-soft">{% translate "Published" %}</span>
+          {% else %}
+            <span class="badge badge-ghost">{% translate "Draft" %}</span>
+          {% endif %}
+        </td>
+        <td>{{ course.lessons.all|length }}</td>
+        <td>{{ course.student_count }}</td>
+        <td class="text-right">
+          <a href="{% url 'courses:instructor_course_edit' course.slug %}" class="btn btn-ghost btn-sm">
+            <i class="fa fa-pencil"></i>
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% else %}
+<section class="app-card text-center">
+  <img class="mx-auto w-40" src="{% static 'images/web/rocket-laptop.svg' %}" alt="">
+  <h2 class="text-xl font-bold mt-4">{% translate "No courses yet" %}</h2>
+  <p class="text-base-content/70 mb-4">{% translate "Create your first course to start teaching." %}</p>
+  <a href="{% url 'courses:instructor_course_create' %}" class="btn btn-primary">
+    {% translate "Create a Course" %}
+  </a>
+</section>
+{% endif %}
+{% endblock %}

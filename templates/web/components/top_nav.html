@@ -17,6 +17,13 @@
       </div>
     </div>
     <div class="navbar-end">
+      <button type="button"
+              class="btn btn-ghost btn-circle"
+              aria-label="{% translate "Toggle dark mode" %}"
+              onclick="SiteJS.theme.toggle()">
+        <i class="fa fa-sun-o dark:hidden"></i>
+        <i class="fa fa-moon-o hidden dark:inline"></i>
+      </button>
       {% if user.is_authenticated %}
       {% else %}
       <a href="{% url 'account_signup' %}" class="btn btn-primary">

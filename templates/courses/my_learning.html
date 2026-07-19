@@ -1,0 +1,39 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% load static %}
+{% block app %}
+<h1 class="text-2xl font-bold mb-4">{% translate "My Enrollments" %}</h1>
+{% if enrollments %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {% for enrollment in enrollments %}
+  <div class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md transition-shadow">
+    <a href="{% url 'courses:learn' enrollment.course.slug %}" class="card-body pb-2">
+      <h2 class="card-title">
+        {{ enrollment.course.title }}
+        {% if enrollment.is_complete %}
+          <span class="badge badge-success badge-soft">{% translate "Completed" %}</span>
+        {% endif %}
+      </h2>
+      <progress class="progress progress-primary w-full" value="{{ enrollment.progress_percent }}" max="100"></progress>
+      <p class="text-sm text-base-content/70">
+        {{ enrollment.progress_percent }}% {% translate "complete" %}
+      </p>
+    </a>
+    {% if enrollment.is_complete %}
+    <div class="card-body pt-0">
+      <a href="{% url 'courses:certificate' enrollment.course.slug %}" class="btn btn-success btn-sm btn-block">
+        <i class="fa fa-certificate"></i> {% translate "Download Certificate" %}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<section class="app-card text-center">
+  <img class="mx-auto w-40" src="{% static 'images/web/rocket-laptop.svg' %}" alt="">
+  <h2 class="text-xl font-bold mt-4">{% translate "You haven't enrolled in any courses yet" %}</h2>
+  <a href="{% url 'courses:catalog' %}" class="btn btn-primary mt-4">{% translate "Browse Courses" %}</a>
+</section>
+{% endif %}
+{% endblock %}

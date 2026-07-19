@@ -1,0 +1,10 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% load static %}
+{% block app %}
+<section class="app-card text-center">
+  <img class="mx-auto w-40" src="{% static 'images/web/rocket-laptop.svg' %}" alt="">
+  <h2 class="text-xl font-bold mt-4">{{ course.title }}</h2>
+  <p class="text-base-content/70">{% translate "This course doesn't have any lessons yet. Check back soon." %}</p>
+</section>
+{% endblock %}

@@ -11,7 +11,9 @@
 
 
 @plugin "@tailwindcss/typography";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
 
 /* Use IBM Plex Mono as the default (sans + mono) font across the app. */
 @theme {

@@ -1,0 +1,64 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% block app %}
+<h1 class="text-2xl font-bold mb-4">{% translate "Admin Dashboard" %}</h1>
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+  <div class="app-card text-center">
+    <div class="text-3xl font-bold">{{ total_users }}</div>
+    <div class="text-base-content/70">{% translate "Total Users" %}</div>
+    <div class="text-xs text-base-content/50 mt-1">
+      {{ active_users }} {% translate "active" %} · {{ inactive_users }} {% translate "deactivated" %}
+    </div>
+  </div>
+  <div class="app-card text-center">
+    <div class="text-3xl font-bold">{{ total_instructors }}</div>
+    <div class="text-base-content/70">{% translate "Instructors" %}</div>
+  </div>
+  <div class="app-card text-center">
+    <div class="text-3xl font-bold">{{ total_students }}</div>
+    <div class="text-base-content/70">{% translate "Students" %}</div>
+  </div>
+  <div class="app-card text-center">
+    <div class="text-3xl font-bold">{{ total_courses }}</div>
+    <div class="text-base-content/70">{% translate "Courses" %}</div>
+    <div class="text-xs text-base-content/50 mt-1">{{ published_courses }} {% translate "published" %}</div>
+  </div>
+</div>
+
+<div class="app-card mb-4">
+  <div class="text-3xl font-bold">{{ total_enrollments }}</div>
+  <div class="text-base-content/70">{% translate "Total Enrollments" %}</div>
+</div>
+
+<div class="flex gap-2 mb-4">
+  <a href="{% url 'adminpanel:user_create' %}" class="btn btn-primary btn-sm">
+    <i class="fa fa-user-plus"></i> {% translate "Add User" %}
+  </a>
+  <a href="{% url 'adminpanel:user_list' %}" class="btn btn-outline btn-sm">
+    <i class="fa fa-users"></i> {% translate "Manage Users" %}
+  </a>
+  <a href="{% url 'adminpanel:logs' %}" class="btn btn-outline btn-sm">
+    <i class="fa fa-list-alt"></i> {% translate "View All Activity" %}
+  </a>
+</div>
+
+<section class="app-card">
+  <h2 class="text-xl font-bold mb-2">{% translate "Recent Activity" %}</h2>
+  {% if recent_activity %}
+  <ul class="list">
+    {% for entry in recent_activity %}
+    <li class="list-row items-center">
+      <div class="grow">
+        <div>{{ entry.description }}</div>
+        <div class="text-xs text-base-content/50">{{ entry.created_at }}</div>
+      </div>
+      <span class="badge badge-ghost badge-sm">{{ entry.action }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-base-content/70">{% translate "No activity recorded yet." %}</p>
+  {% endif %}
+</section>
+{% endblock %}

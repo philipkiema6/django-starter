@@ -1,0 +1,34 @@
+{% load i18n %}
+{% load static %}
+{% if page_obj.object_list %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {% for course in page_obj.object_list %}
+  <a href="{% url 'courses:detail' course.slug %}" class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md transition-shadow">
+    <figure class="h-32 bg-base-200">
+      {% if course.cover_image %}
+        <img src="{{ course.cover_image.url }}" alt="{{ course.title }}" class="object-cover w-full h-full">
+      {% else %}
+        <img src="{% static 'images/web/rocket-laptop.svg' %}" alt="" class="w-16 opacity-60">
+      {% endif %}
+    </figure>
+    <div class="card-body">
+      <h2 class="card-title">
+        {{ course.title }}
+        {% if course.slug in enrolled_slugs %}
+          <span class="badge badge-success badge-soft">{% translate "Enrolled" %}</span>
+        {% endif %}
+      </h2>
+      <p class="text-sm text-base-content/70">{% translate "by" %} {{ course.instructor.get_display_name }}</p>
+      <p class="text-sm text-base-content/70">{{ course.lessons.all|length }} {% translate "lessons" %}</p>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% include "web/components/paginator_htmx.html" %}
+{% else %}
+<section class="app-card text-center">
+  <img class="mx-auto w-40" src="{% static 'images/web/rocket-laptop.svg' %}" alt="">
+  <h2 class="text-xl font-bold mt-4">{% translate "No published courses yet" %}</h2>
+  <p class="text-base-content/70">{% translate "Check back soon — instructors are hard at work." %}</p>
+</section>
+{% endif %}

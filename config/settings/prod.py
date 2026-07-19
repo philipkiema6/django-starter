@@ -65,4 +65,6 @@ USE_HTTPS_IN_ABSOLUTE_URLS = True
 #     "MAILGUN_SENDER_DOMAIN": env("MAILGUN_SENDER_DOMAIN", default=None),
 # }
 
-ADMINS = ["achinga.chris@gmail.com"]
+# Replace with your own address before deploying — this is where signup notifications and
+# error reports (django.core.mail.mail_admins) are sent. See docs/DEPLOYMENT.md.
+ADMINS = ["admin@example.com"]

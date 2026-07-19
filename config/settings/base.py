@@ -72,6 +72,9 @@ THIRD_PARTY_APPS = [
 # Put your project-specific apps here
 PROJECT_APPS = [
     "apps.users.apps.UserConfig",
+    "apps.activity.apps.ActivityConfig",
+    "apps.courses.apps.CoursesConfig",
+    "apps.adminpanel.apps.AdminPanelConfig",
     "apps.web",
 ]
 
@@ -90,6 +93,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.users.middleware.DeactivatedAccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -385,12 +389,12 @@ SCHEDULED_TASKS: dict[str, Any] = {
 
 # replace any values below with specifics for your project
 PROJECT_METADATA = {
-    "NAME": gettext_lazy("django-template"),
+    "NAME": gettext_lazy("Learning Platform"),
     "URL": "http://localhost:8000",
-    "DESCRIPTION": gettext_lazy("my django template"),  # noqa: E501
+    "DESCRIPTION": gettext_lazy("Create courses, enroll, and track your learning progress."),
     "IMAGE": "https://upload.wikimedia.org/wikipedia/commons/2/20/PEO-pegasus_black.svg",
-    "KEYWORDS": "SaaS, django",
-    "CONTACT_EMAIL": "achinga.chris@gmail.com",
+    "KEYWORDS": "learning, courses, education, django",
+    "CONTACT_EMAIL": "admin@example.com",  # replace with your own contact address
 }
 
 # set this to True in production to have URLs generated with https instead of http

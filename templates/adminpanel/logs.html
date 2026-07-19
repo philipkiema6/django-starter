@@ -1,0 +1,44 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+{% block app %}
+<h1 class="text-2xl font-bold mb-4">{% translate "Activity Log" %}</h1>
+{% if page_obj.object_list %}
+<section class="app-card overflow-x-auto">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>{% translate "When" %}</th>
+        <th>{% translate "Actor" %}</th>
+        <th>{% translate "Action" %}</th>
+        <th>{% translate "Description" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in page_obj.object_list %}
+      <tr>
+        <td class="whitespace-nowrap">{{ entry.created_at }}</td>
+        <td>{{ entry.actor.get_display_name|default:"—" }}</td>
+        <td><span class="badge badge-ghost badge-sm">{{ entry.action }}</span></td>
+        <td>{{ entry.description }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% if page_obj.has_other_pages %}
+<div class="flex justify-center mt-4 gap-2">
+  {% if page_obj.has_previous %}
+    <a class="btn btn-sm" href="?page={{ page_obj.previous_page_number }}">{% translate "Previous" %}</a>
+  {% endif %}
+  <span class="btn btn-sm btn-disabled">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+    <a class="btn btn-sm" href="?page={{ page_obj.next_page_number }}">{% translate "Next" %}</a>
+  {% endif %}
+</div>
+{% endif %}
+{% else %}
+<section class="app-card text-center">
+  <h2 class="text-xl font-bold">{% translate "No activity recorded yet" %}</h2>
+</section>
+{% endif %}
+{% endblock %}

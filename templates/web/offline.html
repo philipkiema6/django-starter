@@ -1,0 +1,19 @@
+{% extends "web/base.html" %}
+{% load i18n %}
+{% load static %}
+{% block body %}
+<section class="hero min-h-[70vh]">
+  <div class="hero-content text-center">
+    <div class="max-w-md">
+      <img class="mx-auto w-40" src="{% static 'images/web/rocket-laptop.svg' %}" alt="">
+      <h1 class="text-3xl font-bold mt-4">{% translate "You're offline" %}</h1>
+      <p class="py-4 text-base-content/70">
+        {% translate "It looks like you've lost your internet connection. Some pages you've already visited may still be available." %}
+      </p>
+      <button class="btn btn-primary" onclick="window.location.reload()">
+        {% translate "Try Again" %}
+      </button>
+    </div>
+  </div>
+</section>
+{% endblock %}

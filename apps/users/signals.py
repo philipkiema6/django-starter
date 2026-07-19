@@ -2,10 +2,11 @@ from allauth.account.signals import email_confirmed, user_signed_up
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.mail import mail_admins
-from django.db.models.signals import post_delete, pre_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
-from apps.users.models import CustomUser
+from apps.activity.helpers import log_activity
+from apps.users.models import CustomUser, Profile
 
 
 @receiver(user_signed_up)
@@ -14,6 +15,16 @@ def handle_sign_up(request, user, **kwargs):
     # or subscribe them to your mailing list.
     # This example notifies the admins, in case you want to keep track of sign ups
     _notify_admins_of_signup(user)
+    log_activity(actor=user, action="user.registered", description=f"{user.get_display_name()} registered")
+
+
+@receiver(post_save, sender=CustomUser)
+def create_profile(sender, instance, created, **kwargs):
+    """Give every new user a Profile (default role: student). Admins can promote to
+    instructor from the Django admin. get_or_create guards against double-creation if this
+    ever runs alongside a data migration backfill."""
+    if created:
+        Profile.objects.get_or_create(user=instance)
 
 
 @receiver(email_confirmed)
