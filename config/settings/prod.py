@@ -52,7 +52,7 @@ CSRF_COOKIE_SECURE = True
 USE_HTTPS_IN_ABSOLUTE_URLS = True
 
 # If you don't want to use environment variables to set production hosts you can add them here
-# ALLOWED_HOSTS = ["example.com"]
+ALLOWED_HOSTS = ["learning-platform-qw4v.onrender.com"]
 
 # Your email config goes here.
 # see https://github.com/anymail/django-anymail for more details / examples
@@ -69,8 +69,3 @@ USE_HTTPS_IN_ABSOLUTE_URLS = True
 # error reports (django.core.mail.mail_admins) are sent. See docs/DEPLOYMENT.md.
 ADMINS = ["admin@example.com"]
 
-ALLOWED_HOSTS = [
-    "learning-platform-qw4v.onrender.com",
-    "localhost",
-    "127.0.0.1",
-]
