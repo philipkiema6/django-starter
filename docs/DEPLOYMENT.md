@@ -74,17 +74,27 @@ names.
 
 ## Creating a superuser on Render
 
-Render's free web services don't offer a persistent shell by default. Two options:
+Render's free web services don't offer a persistent shell, so `createsuperuser` can't be run
+interactively. Instead, set `DJANGO_SUPERUSER_EMAIL` and `DJANGO_SUPERUSER_PASSWORD` in the
+web service's **Environment** tab (or via `render.yaml`'s `sync: false` prompts if using the
+Blueprint) and redeploy. On startup, the container runs
+`python manage.py create_superuser_from_env`
+(`apps/users/management/commands/create_superuser_from_env.py`), which:
 
-- Use Render's **Shell** tab (available on paid plans) to run
-  `python manage.py createsuperuser`.
-- Or set `DEV_SUPERUSER_EMAIL` / `DEV_SUPERUSER_PASSWORD` and temporarily point
-  `DJANGO_SETTINGS_MODULE` at a settings module with `DEBUG=True` for one deploy to let the
-  existing auto-superuser creation (`apps/web`'s custom `runserver` command) run — **not
-  recommended for anything beyond a first-boot convenience**, since `DEBUG=True` disables the
-  production security hardening. The safer route is `createsuperuser` via the Shell tab, or
-  promoting an existing account to `is_superuser` via a one-off management command run locally
-  against the production database (`DATABASE_URL` pointed at Render's external DB URL).
+- Creates exactly one superuser with that email/password, if no user with that email exists yet.
+- No-ops on every subsequent deploy once the account exists — it never touches an existing
+  account's password, so it's safe to leave the env vars set indefinitely.
+- Never writes the password to logs.
+
+After the first successful deploy: log in at `/admin/`, change the password from the admin UI
+(your own, not the bootstrap one — treat the env var password as a one-time bootstrap secret),
+then optionally remove `DJANGO_SUPERUSER_EMAIL` / `DJANGO_SUPERUSER_PASSWORD` from Render's
+Environment tab. Removing them doesn't affect the account that was already created — they're
+only consulted when no matching user exists yet.
+
+Don't use `DEV_SUPERUSER_EMAIL`/`DEV_SUPERUSER_PASSWORD` for this — those are consumed by
+`apps/web`'s custom `runserver` command and are gated on `DEBUG=True`, so they do nothing in
+production (`config.settings.prod` forces `DEBUG=False`).
 
 ## Known limitation: media storage
 

@@ -56,3 +56,12 @@ services:
           type: redis
           name: learning-platform-cache
           property: connectionString
+      # Optional: bootstraps one superuser on first deploy (apps/users/management/commands/
+      # create_superuser_from_env.py) — for the free tier, which has no Shell access to run
+      # createsuperuser manually. sync: false means Render prompts for these in the dashboard
+      # rather than storing them in this file / git. Safe to leave set permanently (idempotent,
+      # never overwrites an existing password) or remove after the first deploy.
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false

@@ -78,13 +78,17 @@ COPY --from=frontend --chown=django:django /code/static /code/static
 
 EXPOSE 8000
 
-# Default to migrate + collectstatic + gunicorn, so the image is runnable standalone (e.g. by
-# Render, which builds straight from this Dockerfile and knows nothing about
-# docker-compose.yml). collectstatic populates STATIC_ROOT (static_root/) from STATICFILES_DIRS
-# (static/, containing the Vite build copied in above) — without it, STATIC_ROOT never exists
-# and WhiteNoise has nothing to serve. `celery` overrides this CMD in docker-compose.yml.
+# Default to migrate + (optional) superuser bootstrap + collectstatic + gunicorn, so the image
+# is runnable standalone (e.g. by Render, which builds straight from this Dockerfile and knows
+# nothing about docker-compose.yml). collectstatic populates STATIC_ROOT (static_root/) from
+# STATICFILES_DIRS (static/, containing the Vite build copied in above) — without it,
+# STATIC_ROOT never exists and WhiteNoise has nothing to serve. create_superuser_from_env is a
+# no-op unless DJANGO_SUPERUSER_EMAIL/PASSWORD are set (see apps/users/management/commands/),
+# for hosts with no shell access to run createsuperuser manually. `celery` overrides this CMD
+# in docker-compose.yml.
 CMD ["bash", "-c", "\
      python manage.py migrate --noinput && \
+     python manage.py create_superuser_from_env && \
      python manage.py collectstatic --noinput && \
      exec gunicorn config.wsgi:application \
        --bind 0.0.0.0:8000 \
