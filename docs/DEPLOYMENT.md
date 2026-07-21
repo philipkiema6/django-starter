@@ -64,9 +64,10 @@ names.
    | `DATABASE_URL` | the Postgres Internal Database URL from step 1 |
    | `REDIS_URL` | the Redis/Key-Value connection URL from step 2 |
 
-5. Deploy. The `web` service in `docker-compose.yml` runs `migrate` + `collectstatic`
-   automatically on boot — Render's Docker deploy follows the same `Dockerfile` entrypoint, so
-   this happens on every deploy without extra configuration.
+5. Deploy. The image's `CMD` (defined in the `Dockerfile` itself, not `docker-compose.yml`)
+   runs `migrate` + `collectstatic` before starting gunicorn on every container start, so this
+   happens automatically on Render without any extra configuration — no `startCommand` override
+   needed in `render.yaml`.
 6. Once live, create an instructor account: sign up normally (defaults to Student), then open
    `https://<your-app>.onrender.com/admin/`, log in with a superuser (see below), and edit that
    user's inline **Profile** to set **Role = Instructor**.
@@ -94,6 +95,14 @@ next restart or redeploy**. This is acceptable for a portfolio demo but not for 
 **Future improvement (not implemented in this repo):** switch `DEFAULT_FILE_STORAGE` to an
 S3-compatible backend via [`django-storages`](https://django-storages.readthedocs.io/), backed
 by a free-tier bucket (e.g. Cloudflare R2, Backblaze B2, or AWS S3's free tier).
+
+## Troubleshooting: static files 500ing / "No directory at: /code/static_root/"
+
+This means `collectstatic` never ran, so `STATIC_ROOT` (`static_root/`) doesn't exist and
+WhiteNoise has nothing to serve. As of this repo, `migrate` + `collectstatic` run automatically
+as part of the image's `CMD` in the `Dockerfile` itself — if you're seeing this, you're likely
+running an older image built before that was added. Rebuild and redeploy; there's nothing to
+configure on Render's side (no `startCommand` override needed).
 
 ## Verifying the deployment
 

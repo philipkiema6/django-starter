@@ -37,14 +37,8 @@ services:
         MY_UID: ${MY_UID:-1000}
         MY_GID: ${MY_GID:-1000}
     image: django-template:latest
-    # Apply migrations and gather static files, then serve via gunicorn.
-    command: >
-      bash -c "python manage.py migrate --noinput &&
-               python manage.py collectstatic --noinput &&
-               exec gunicorn config.wsgi:application
-                 --bind 0.0.0.0:8000
-                 --workers $${GUNICORN_WORKERS:-3}
-                 --access-logfile - --error-logfile -"
+    # Migrate + collectstatic + gunicorn is the image's default CMD (see Dockerfile) — no
+    # override needed here.
     env_file:
       - ./.env.prod
     ports:
